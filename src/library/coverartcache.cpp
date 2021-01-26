@@ -23,7 +23,7 @@ mixxx::Logger kLogger("CoverArtCache");
 // 10MB available to store the pixmaps.
 // So, we must increase this size a bit more,
 // in order to allow CoverCache handle more covers (performance gain).
-constexpr int kPixmapCacheLimit = 20480;
+constexpr int kPixmapCacheLimit = 300000;
 
 QString pixmapCacheKey(mixxx::cache_key_t hash, int width) {
     return QString("CoverArtCache_%1_%2")
