@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.13.0)
-project(mixxx VERSION 2.3.0)
+set(CMAKE_OSX_DEPLOYMENT_TARGET "11.1" CACHE STRING "Minimum OS X deployment version" FORCE)
+project(mixxx VERSION 2.4.0)
 set(CMAKE_PROJECT_HOMEPAGE_URL "https://www.mixxx.org")
 set(CMAKE_PROJECT_DESCRIPTION "Mixxx is Free DJ software that gives you everything you need to perform live mixes.")
 
@@ -81,7 +82,7 @@ endif()
 #
 # Optimizations
 #
-set(OPTIMIZE "portable" CACHE STRING "Optimization and Tuning (set to off, portable, native, legacy, fastbuild)")
+set(OPTIMIZE "native" CACHE STRING "Optimization and Tuning (set to off, portable, native, legacy, fastbuild)")
 message(STATUS "Optimization level: ${OPTIMIZE}")
 
 if(MSVC)
@@ -167,6 +168,8 @@ if(MSVC)
     endif()
   endif()
 elseif(GNU_GCC OR LLVM_CLANG)
+  message("enabled the thing!")
+  add_compile_options(-mtune=native)
   if(NOT OPTIMIZE STREQUAL "off")
     # Common flags to all optimizations.
     # -ffast-math will prevent a performance penalty by denormals
@@ -192,7 +195,8 @@ elseif(GNU_GCC OR LLVM_CLANG)
       # portable: sse2 CPU (>= Pentium 4)
       if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(i[3456]86|x86|x64|x86_64|AMD64)$")
         message(STATUS "Enabling SS2 CPU optimizations (>= Pentium 4)")
-        add_compile_options(-mtune=generic)
+        #add_compile_options(-mtune=native)
+        #add_compile_options(-mtune=generic)
         # -mtune=generic picks the most common, but compatible options.
         # on arm platforms equivalent to -march=arch
         if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -201,6 +205,9 @@ elseif(GNU_GCC OR LLVM_CLANG)
           add_compile_options(
             -msse2
             -mfpmath=sse)
+          #add_compile_options(
+          #  -march=native
+          #)
         endif()
         # TODO(rryan): macOS can use SSE3, and possibly SSE 4.1 once
         # we require macOS 10.12.
@@ -1777,8 +1784,9 @@ if(KEYFINDER)
 endif()
 
 # FLAC
-find_package(FLAC REQUIRED)
-target_link_libraries(mixxx-lib PUBLIC FLAC::FLAC)
+#find_package(FLAC REQUIRED)
+#target_link_libraries(mixxx-lib PUBLIC FLAC::FLAC)
+target_link_libraries(mixxx-lib PUBLIC "-framework FLAC")
 if(WIN32 AND STATIC_DEPS)
   target_compile_definitions(mixxx-lib PUBLIC FLAC__NO_DLL)
 endif()
