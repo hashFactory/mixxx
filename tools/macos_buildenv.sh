@@ -39,7 +39,7 @@ case "$COMMAND" in
 
     setup)
         # Minimum required by Qt 5.12
-        MACOSX_DEPLOYMENT_TARGET=10.12
+        MACOSX_DEPLOYMENT_TARGET=10.13
 
         BUILDENV_PATH="${BUILDENV_BASEPATH}/${BUILDENV_NAME}"
         mkdir -p "${BUILDENV_BASEPATH}"
@@ -69,7 +69,7 @@ case "$COMMAND" in
             echo "Build environment found: ${BUILDENV_PATH}"
         fi
 
-        export SDKROOT="${BUILDENV_BASEPATH}/MacOSX10.13.sdk"
+        export SDKROOT="${BUILDENV_BASEPATH}/MacOSX10.15.sdk"
         if [ -d "${SDKROOT}" ]; then
             if [ "$1" != "--profile" ]; then
                 echo "macOS 10.13 SDK found: ${SDKROOT}"
@@ -97,8 +97,8 @@ case "$COMMAND" in
         [ -z "${Qt5_DIR}" ] && echo "Failed to locate Qt5_DIR!" >&2
         QT_QPA_PLATFORM_PLUGIN_PATH="$(find "${BUILDENV_PATH}" -type d -path "*/plugins")"
         [ -z "${QT_QPA_PLATFORM_PLUGIN_PATH}" ] && echo "Failed to locate QT_QPA_PLATFORM_PLUGIN_PATH" >&2
-        export CC="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
-        export CXX="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++"
+        export CC="/Volumes/Data/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+        export CXX="/Volumes/Data/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++"
         export PATH="${BUILDENV_PATH}/bin:${PATH}"
         export CMAKE_PREFIX_PATH="${BUILDENV_PATH}"
         export Qt5_DIR
