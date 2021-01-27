@@ -212,9 +212,9 @@ elseif(GNU_GCC OR LLVM_CLANG)
         # TODO(rryan): macOS can use SSE3, and possibly SSE 4.1 once
         # we require macOS 10.12.
         # https://stackoverflow.com/questions/45917280/mac-osx-minumum-support-sse-version
-      elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
+      elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm|armv7.*)$") # but not armv8
         add_compile_options(
-          -mflat-abi=hard
+          -mfloat-abi=hard
           -mfpu=neon
         )
       endif()
@@ -235,7 +235,7 @@ elseif(GNU_GCC OR LLVM_CLANG)
       # Note: requires gcc >= 4.2.0
       # macros like __SSE2_MATH__ __SSE_MATH__ __SSE2__ __SSE__
       # are set automatically
-      if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
+      if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm|armv7.*)$") # but not armv8
         add_compile_options(
           -mfloat-abi=hard
           -mfpu=neon
@@ -1315,10 +1315,10 @@ if(UNIX AND NOT APPLE)
       "${CMAKE_INSTALL_DATADIR}/pixmaps"
   )
 
-  # .appdata.xml file for KDE/GNOME AppStream initiative
+  # .metainfo.xml file for KDE/GNOME AppStream initiative
   install(
     FILES
-      "${CMAKE_CURRENT_SOURCE_DIR}/res/linux/mixxx.appdata.xml"
+      "${CMAKE_CURRENT_SOURCE_DIR}/res/linux/mixxx.metainfo.xml"
     DESTINATION
       "${CMAKE_INSTALL_DATAROOTDIR}/metainfo"
   )
@@ -1743,20 +1743,21 @@ if(KEYFINDER)
     # If KeyFinder is built statically, we need FFTW
     find_package(FFTW REQUIRED)
     set(KeyFinder_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/lib/keyfinder-install")
-    set(KeyFinder_LIBRARY "lib/${CMAKE_STATIC_LIBRARY_PREFIX}keyfinder${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    set(KeyFinder_LIBRARY "${CMAKE_INSTALL_LIBDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}keyfinder${CMAKE_STATIC_LIBRARY_SUFFIX}")
     file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/download")
     ExternalProject_Add(libkeyfinder
-      URL "https://github.com/mixxxdj/libkeyfinder/archive/v2.2.3.zip"
-      URL_HASH SHA256=ad43ca006e3bbed0810ff62e170d04522a64f8606c2166bfa5a9b9158b7ebc11
+      URL "https://github.com/mixxxdj/libkeyfinder/archive/v2.2.4.zip"
+      URL_HASH SHA256=cb3fea8c7213257281b6c7006b2430809f466ad8a1d485663324378d6fc0782c
       DOWNLOAD_DIR "${CMAKE_CURRENT_BINARY_DIR}/download/libkeyfinder"
       INSTALL_DIR "${KeyFinder_INSTALL_DIR}"
       CMAKE_ARGS
-        -DBUILD_STATIC_LIBS=ON
+        -DBUILD_SHARED_LIBS=OFF
         -DCMAKE_SKIP_INSTALL_ALL_DEPENDENCY=ON
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
         -DCMAKE_PREFIX_PATH:PATH="${CMAKE_PREFIX_PATH}"
-      BUILD_COMMAND ${CMAKE_COMMAND} --build . --target keyfinder
+        -DBUILD_TESTING=OFF
+      BUILD_COMMAND ${CMAKE_COMMAND} --build .
       BUILD_BYPRODUCTS <INSTALL_DIR>/${KeyFinder_LIBRARY}
       EXCLUDE_FROM_ALL TRUE
     )
@@ -2654,6 +2655,7 @@ set(CPACK_SOURCE_IGNORE_FILES  "\\\\.#;/#;.*~;\\\\.o$")
 list(APPEND CPACK_SOURCE_IGNORE_FILES "/\\\\.git/")
 list(APPEND CPACK_SOURCE_IGNORE_FILES "/\\\\.github/")
 list(APPEND CPACK_SOURCE_IGNORE_FILES "/cache/")
+list(APPEND CPACK_SOURCE_IGNORE_FILES "/build/")
 list(APPEND CPACK_SOURCE_IGNORE_FILES "/.*_build/")
 list(APPEND CPACK_SOURCE_IGNORE_FILES "/\\\\.sconf_temp/")
 list(APPEND CPACK_SOURCE_IGNORE_FILES "${CMAKE_CURRENT_BINARY_DIR}/")
